@@ -1,0 +1,29 @@
+body{
+ 
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+
+}
+.outer-container{
+  display:flex;
+  height: 100vh;
+  position:relative;
+  align-items: center;
+}
+.centered-cs {
+  width: 600px; /* Set the width of your div */
+  height: 100px; /* Set the height of your div */
+  background-color: #f0000f;
+  position: absolute;
+  top:25%;
+  margin-left: 20px; 
+  transform: translateY(-50%); /* Vertically center the div within its own height */
+}
+
+.canvas{
+  background-color: blue;
+  width:700px;
+  margin-right:20px;
+}

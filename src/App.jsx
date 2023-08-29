@@ -1,58 +1,34 @@
-import { useState, useLayoutEffect} from 'react';
+import { useState, useLayoutEffect, useRef} from 'react';
 import Editor from '@monaco-editor/react';
-import rough from 'roughjs/bundled/rough.esm';
+import {ReactSketchCanvas} from 'react-sketch-canvas';
 import './App.css';
 
-const generator = rough.generator();
-function createElement(x1,y1,x2,y2){
-  const roughElement = generator.line(x1,y1,x2,y2);
-  return {x1,y1,x2,y2, roughElement};
-}
+
 const App = () => {
-  const [elements, setElements] = useState([]);
-  const [drawing, setDrawing] = useState(false);
+  const sketchCanvasRef = useRef(null);
+
+  const [eraseMode, setEraseMode] = useState(false);
+  
+  const clearCanvas = () => {
+    if(sketchCanvasRef.current){
+      sketchCanvasRef.current.clearCanvas();
+    }
+  }
+
+  const toggleEraseMode = () => {
+    setEraseMode(prevMode => !prevMode);
+    };
 
 
-  useLayoutEffect(()=>{
-    const canvas =document.getElementById("canvas");
-    const context = canvas.getContext("2d");
-    context.clearRect(0,0,canvas.width,canvas.height);
-
-    const roughCanvas = rough.canvas(canvas);
-
-    elements.forEach(({roughElement}) => roughCanvas.draw(roughElement));
-
-
-
-    
-
-  }, [elements]);
-  const handleMouseDown = (event)=>{
-    setDrawing(true);
-
-    const element = createElement(clientX,clientY, clientX,clientY);
-    setElements(prevState => [...prevState, element]);
-  };
-  const handleMouseMove = (event)=>{
-    if(!drawing) return;
-    const {clientX,clientY} = event;
-    const index = elements.length - 1;
-    const{x1, y1} = elements[index];
-    const updatedElement = createElement(x1,y1,clientX,clientY)
-
-    const elementsCopy = [...elements];    
-    elementsCopy[index] = updatedElement;
-    setElements(elementsCopy);
-
-    console.log(clientX,clientY);
-  };
-  const handleMouseUp = () => { 
-      setDrawing(false);
-  };
   return (
     <div className="App">
       <div className="header">
         <h1>Codespace</h1>
+      </div>
+      <div className="canvas-editor">
+        <button className="canvas" onClick={clearCanvas}>CLEAR</button>
+        <button className="canvas" onClick={toggleEraseMode}>{eraseMode ? 'Draw' : 'Erase'}</button>
+        
       </div>
       <div className = "outer-containter">
         <div className = "centered-cs">
@@ -64,16 +40,14 @@ const App = () => {
             />
         </div>
         </div>
-        <canvas 
-          id="canvas" 
-          width={window.innerWidth} 
+        <ReactSketchCanvas
+          ref={sketchCanvasRef}
+          width={window.innerWidth}
           height={window.innerHeight}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          >
-            Canvas
-          </canvas>
+          strokeWidth={4}
+          strokeColor={eraseMode ? 'white' : 'black'}
+          readOnly={eraseMode}
+        />
     </div>
     );
 
